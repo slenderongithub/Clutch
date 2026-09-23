@@ -1,0 +1,191 @@
+\documentclass[letterpaper,10pt]{article}
+
+% Compiled with pdflatex (this app's backend always invokes pdflatex, not
+% xelatex/lualatex) — so fontspec + system font loading was replaced below
+% with pdflatex-compatible helvet, keeping the same clean sans-serif look.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+% paracol (not minipage) for the two-column body: a minipage is a single
+% atomic, unbreakable box, so once the combined column content is taller
+% than the space left on the page after the header, LaTeX pushes the
+% WHOLE block to the next page — leaving the header stranded alone on
+% page 1. paracol's columns break across pages like ordinary text instead.
+\usepackage{paracol}
+
+% Precise Deedy Geometric Margins
+\geometry{left=1.25cm, top=1cm, right=1.25cm, bottom=1cm}
+
+% Without this, the narrow 0.33\textwidth left column gets fully
+% justified by default, which stretches inter-word spacing unevenly on
+% short lines (most visible in the Skills entries) — raggedright avoids
+% that stretching everywhere, matching every other template in this set.
+\raggedright
+\raggedbottom
+
+% Exact Deedy Color Palette Matrix
+\definecolor{primarytext}{RGB}{45, 55, 72}
+\definecolor{headings}{RGB}{107, 70, 193}     % Classic Deedy Purple Accent
+\definecolor{subheadings}{RGB}{45, 55, 72}    % Deep Gray Titles
+\definecolor{graytext}{RGB}{113, 128, 150}    % Soft Gray Metadata
+
+% Header Styling Rules
+\titleformat{\section}{\color{headings}\scshape\Large\bfseries}{}{0em}{}
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+
+% Structure Component Directives
+\newcommand{\descript}[1]{{\color{subheadings}\textit{\small #1}}}
+\newcommand{\location}[1]{{\color{graytext}\footnotesize #1}}
+\newcommand{\runsubsection}[1]{{\color{subheadings}\bfseries\large #1}}
+\newcommand{\sectionsep}{\vspace{3pt}}
+
+% Optimized Tight Itemize Layout Engine
+\newenvironment{tightemize}{
+  \begin{itemize}[leftmargin=3mm, topsep=1pt, itemsep=2pt, parsep=0pt]
+}{
+  \end{itemize}
+}
+
+\begin{document}
+\color{primarytext}
+
+%======================================================================
+% HEADER / TITLE SECTION
+%======================================================================
+\begin{center}
+    {\Huge ALEXANDER} {\Huge\bfseries WRIGHT} \\ \vspace{3pt}
+    \color{graytext} \small
+    \href{https://alexwright.dev}{alexwright.dev} $|$
+    \href{mailto:alex.wright@email.com}{alex.wright@email.com} $|$
+    415.555.0192 $|$
+    \href{mailto:awright@stanford.edu}{awright@stanford.edu}
+\end{center}
+\vspace{4pt}
+
+%======================================================================
+% TWO COLUMN INTERFACE BLOCK
+%======================================================================
+\columnratio{0.34}
+\setlength{\columnsep}{20pt}
+\begin{paracol}{2} % COLUMN ONE: LEFT SIDEBAR
+
+\section{Education}
+
+\runsubsection{Stanford University} \\
+\descript{MS in Computer Science} \\
+\location{Expected Dec 2027 $|$ Stanford, CA}
+\sectionsep
+
+\runsubsection{Oakridge Academy} \\
+\location{Grad. May 2022 $|$ Boston, MA}
+\sectionsep
+
+\section{Links}
+{\small
+GitHub:// \href{https://github.com}{\bf alexwright-dev} \\
+LinkedIn:// \href{https://linkedin.com}{\bf alex-j-wright} \\
+YouTube:// \href{https://youtube.com}{\bf WrightCodes} \\
+Twitter:// \href{https://twitter.com}{\bf @alexwright\_cs} \\
+Medium:// \href{https://medium.com}{\bf @wright-bytes}
+}
+\sectionsep
+
+\section{Coursework}
+\runsubsection{Graduate} \\
+{\small
+Deep Learning Architectures \\
+Distributed Cloud Storage \\
+}
+\sectionsep
+
+\runsubsection{Undergraduate} \\
+{\small
+Analysis of Algorithms \\
+Operating Systems Kernels \\
+Artificial Intelligence Systems \\
+Object-Oriented Programming \\
+Database Implementation \\
+{\footnotesize \textit{\textbf{(Head Teaching Assistant 3x) }}}
+}
+\sectionsep
+
+\section{Skills}
+\runsubsection{Programming} \\
+\location{Over 5000 lines:}
+{\small Python $\cdot$ Go $\cdot$ C++ $\cdot$ TypeScript $\cdot$ SQL $\cdot$ \LaTeX} \\
+\vspace{2pt}
+\location{Over 1000 lines:}
+{\small Java $\cdot$ Rust $\cdot$ C $\cdot$ Bash $\cdot$ Dockerfile $\cdot$ HTML} \\
+\vspace{2pt}
+\location{Familiar:}
+{\small Assembly $\cdot$ AWS $\cdot$ PyTorch $\cdot$ Kubernetes}
+\sectionsep
+
+\section{Awards}
+{\small
+2026 -- 1\textsuperscript{st}/120: Stanford Intra-Collegiate Hackathon Grand Champion \\
+2025 -- Finalist: Citadel West Coast Datathon Regional Finalist \\
+2024 -- National Science Foundation Undergraduate Scholar \\
+2023 -- 3\textsuperscript{rd}/80: ACM-ICPC Regional Collegiate Programming Contest \\
+2022 -- USAMO Qualifier
+}
+\sectionsep
+
+\switchcolumn % COLUMN TWO: MAIN BODY CONTENT
+
+\section{Experience}
+
+\runsubsection{Stripe} \descript{$|$ Software Engineering Intern} \\
+\location{May 2026 -- Aug 2026 $|$ San Francisco, CA}
+\begin{tightemize}
+    \item Selected into the ultra-competitive Global Engineering Fellows cohort out of 4,000 global applicants.
+    \item Architected and launched Vanguard, an internal tracking framework handling live payment flow validations.
+    \item Built reliable high-throughput microservices using Go, processing up to 14,000 transactions per second.
+\end{tightemize}
+\sectionsep
+
+\runsubsection{Nvidia} \descript{$|$ Accelerated Computing Intern} \\
+\location{June 2025 -- Sep 2025 $|$ Santa Clara, CA}
+\begin{tightemize}
+    \item Programmed core optimizations in the hardware memory layers using C++ and parallelized CUDA layouts.
+    \item Designed an experimental caching system reducing latency profiles for large language processing graphs by 14\%.
+    \item Collaborated with system layout teams to stress-test high-density database clusters under full load.
+\end{tightemize}
+\sectionsep
+
+\runsubsection{OpenSource Core} \descript{$|$ Lead Maintainer} \\
+\location{Jan 2024 -- May 2025 $|$ Remote Deployment}
+\begin{tightemize}
+    \item Managed a team of 14 international developers maintaining a distributed asset routing system tool.
+    \item Engineered cross-platform containerization scripts reducing onboarding times for fresh environments by 35\%.
+\end{tightemize}
+\sectionsep
+
+\section{Research}
+
+\runsubsection{Stanford AI Laboratory} \descript{$|$ Head Researcher} \\
+\location{Sep 2024 -- Present $|$ Stanford, CA} \\
+{\small Co-developed OmniPath alongside research staff, constructing a robust reinforcement learning package that tracks real-time navigation behaviors in dynamic environments. Implemented deep evaluation loops using PyTorch clusters.}
+\sectionsep
+
+\runsubsection{Stanford Systems Group} \descript{$|$ Researcher} \\
+\location{Jan 2023 -- June 2024 $|$ Stanford, CA} \\
+{\small Optimized parallel file system drivers on high-performance compute arrays, cutting average runtime overhead margins down to historic minimum levels across production tests.}
+\sectionsep
+
+\section{Publications}
+{\small
+\noindent Wright, A., et al. (2026). "Predictive Spatial Mapping via Asymmetric Deep Networks." \textit{International Conference on Machine Learning (ICML)}. \\ \vspace{2pt}
+\noindent Wright, A., Systems Group. (2025). "Low-Latency File Allocation Mechanisms on Distributed SSD Clusters." \textit{IEEE Systems Journal}.
+}
+\sectionsep
+
+\end{paracol}
+\end{document}

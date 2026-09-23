@@ -1,0 +1,112 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{cochineal} % Elegant Executive Serif Font
+
+% Margin adjustments
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.0in}
+\addtolength{\topmargin}{-0.6in}
+\addtolength{\textheight}{1.2in}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section formatting
+\titleformat{\section}{
+  \vspace{-6pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-4pt}]
+
+% Custom list definitions
+\newenvironment{entrylist}{\begin{itemize}[leftmargin=0in, label={}]}{\end{itemize}}
+\newenvironment{bulletlist}{\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt, parsep=0pt]}{\end{itemize}}
+
+\newcommand{\entry}[4]{
+  \vspace{4pt}\item
+  \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{#1} & \textit{#2} \\
+    \textit{#3} & {#4} \\
+  \end{tabular*}\vspace{-4pt}
+}
+
+\begin{document}
+
+% ---------- HEADER ----------
+\begin{center}
+    {\Huge \scshape Charles Vance} \\ \vspace{6pt}
+    \small London, UK $|$ +44 20 7946 0192 $|$ \href{mailto:c.vance@email.com}{c.vance@email.com} $|$ \href{https://linkedin.com/in/charlesvance}{linkedin.com/in/charlesvance}
+\end{center}
+
+% ---------- EXPERIENCE ----------
+\section{Professional Experience}
+\begin{entrylist}
+    \entry{Senior Management Consultant}{Jan. 2024 -- Present}{Vanguard Advisory Group}{London, UK}
+    \begin{bulletlist}
+        \item Advised FTSE 100 financial services clients on cloud transformation initiatives, reducing technology footprints by 18\%.
+        \item Structured financial models optimizing post-merger integrations valued at upwards of £40M.
+        \item Directed cross-functional workstreams comprising 12 consultants and client-side engineers.
+    \end{bulletlist}
+
+    \entry{Strategy Analyst}{Sep. 2021 -- Dec. 2023}{Apex Capital Partners}{New York, NY}
+    \begin{bulletlist}
+        \item Conducted extensive commercial due diligence market evaluations across competitive technology spaces.
+        \item Compiled weekly portfolio risk evaluation briefs presented directly to senior managing partners.
+        \item Built valuation models for 8 prospective acquisition targets across the fintech and healthtech sectors.
+    \end{bulletlist}
+
+    \entry{Investment Banking Analyst}{Jul. 2020 -- Aug. 2021}{Meridian \& Co.}{London, UK}
+    \begin{bulletlist}
+        \item Supported execution of 5 M\&A transactions with a combined deal value exceeding £300M.
+        \item Prepared pitch materials and comparable company analyses for senior banker client presentations.
+        \item Built and maintained LBO and DCF models used directly in client-facing deal committee reviews.
+    \end{bulletlist}
+
+    \entry{Summer Analyst}{Jun. 2019 -- Aug. 2019}{Hartwell \& Bourne Consulting}{London, UK}
+    \begin{bulletlist}
+        \item Supported a 6-person team on a cost-reduction engagement for a European retail client, identifying £4M in annual savings.
+        \item Synthesized primary research from 20+ stakeholder interviews into a client-facing findings deck.
+    \end{bulletlist}
+\end{entrylist}
+
+% ---------- EDUCATION ----------
+\section{Education}
+\begin{entrylist}
+    \entry{M.Sc. in Financial Economics}{2021}{Oxford University}{Oxford, UK}
+    \entry{B.A. in Economics \& Mathematics}{2020}{Georgetown University}{Washington, DC}
+\end{entrylist}
+
+% ---------- SELECTED ENGAGEMENTS ----------
+\section{Selected Engagements}
+\begin{entrylist}
+    \item \vspace{2pt}
+    \textbf{Global Cloud Migration Strategy} -- Advised a FTSE 100 insurer on a multi-year cloud transformation roadmap spanning 14 business units. \\
+    \textbf{Cross-Border Merger Integration} -- Led financial and operational integration planning for a \$1.2B transatlantic merger. \\
+    \textbf{Portfolio Risk Framework Redesign} -- Rebuilt a mid-market asset manager's risk evaluation methodology, adopted firm-wide.
+\end{entrylist}
+
+% ---------- CORE COMPETENCIES ----------
+\section{Core Competencies}
+\begin{entrylist}
+    \item \vspace{2pt}
+    \textbf{Strategic Capabilities:} Corporate Finance, Due Diligence, Risk Management, M\&A Integration, Post-Merger Integration \\
+    \textbf{Technical Tools:} Python (Pandas), SQL, Bloomberg Terminal, Advanced Excel Modeling, Tableau, PowerBI
+\end{entrylist}
+
+% ---------- CERTIFICATIONS & AFFILIATIONS ----------
+\section{Certifications \& Affiliations}
+\begin{entrylist}
+    \item \vspace{2pt}
+    Chartered Financial Analyst (CFA) Charterholder \\
+    Member, Institute of Management Consultants (IMC) \\
+    Board Advisor, London Fintech Founders Network \\
+    Fluent in English, French, and Mandarin
+\end{entrylist}
+
+\end{document}

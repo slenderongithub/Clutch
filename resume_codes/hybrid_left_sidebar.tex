@@ -1,0 +1,106 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.6in}
+\addtolength{\textwidth}{1.2in}
+\addtolength{\topmargin}{-0.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+
+\definecolor{brand}{RGB}{0, 102, 204} % Royal Accent Blue
+\definecolor{textdark}{RGB}{51, 51, 51}
+
+\titleformat{\section}{
+  \vspace{8pt}\color{brand}\large\bfseries
+}{}{0em}{}[\color{brand}\titlerule]
+
+\newcommand{\timelineEntry}[4]{
+  \vspace{6pt}
+  \noindent
+  \begin{minipage}[t]{0.22\textwidth}
+    \textbf{\color{brand}#1}
+  \end{minipage}%
+  \begin{minipage}[t]{0.78\textwidth}
+    \textbf{\color{textdark}#2} \ $|$ \ \textit{#3} \\ \vspace{2pt}
+    #4
+  \end{minipage}
+  \vspace{4pt}
+}
+
+% Lighter two-column row for plain "label: content" lines (e.g. Skills)
+% that don't have a separate title/company split, so there's no dangling
+% "$|$" divider left with nothing after it.
+\newcommand{\skillRow}[2]{
+  \vspace{6pt}
+  \noindent
+  \begin{minipage}[t]{0.22\textwidth}
+    \textbf{\color{brand}#1}
+  \end{minipage}%
+  \begin{minipage}[t]{0.78\textwidth}
+    #2
+  \end{minipage}
+  \vspace{4pt}
+}
+
+\begin{document}
+\color{textdark}
+
+% ---------- HEADER ----------
+\begin{center}
+    {\Huge \textbf{SABRINA CHEN}} \\ \vspace{4pt}
+    \small Product Manager $|$ San Francisco, CA $|$ \href{mailto:sabrina.chen@email.com}{sabrina.chen@email.com} $|$ +1 (415) 555-0188
+\end{center}
+
+% ---------- EXPERIENCE ----------
+\section{Professional Timeline}
+
+\timelineEntry{2024 -- Present}{Lead Product Manager}{Global Tech Ecosystems}{
+  \begin{itemize}[leftmargin=0.15in, topsep=0pt, itemsep=2pt]
+    \item Owned the core lifecycle delivery roadmap for a mobile application tracking 4M monthly active users.
+    \item Championed product discovery initiatives that raised checkout conversions by 8.4\% across test cycles.
+    \item Supervised agile sprints across distributed engineering, product design, and growth analytics teams.
+  \end{itemize}
+}
+
+\timelineEntry{2021 -- 2024}{Product Owner}{Fintech Solutions Corp}{
+  \begin{itemize}[leftmargin=0.15in, topsep=0pt, itemsep=2pt]
+    \item Delivered 6 regulatory API integrations ahead of schedule, preventing high-priority onboarding blockers.
+    \item Analyzed extensive user drop-off trends, presenting structured discovery assessments directly to leadership.
+    \item Launched a self-serve onboarding flow that cut average time-to-first-transaction by 32\%.
+  \end{itemize}
+}
+
+\timelineEntry{2019 -- 2021}{Associate Product Manager}{Northgate Software}{
+  \begin{itemize}[leftmargin=0.15in, topsep=0pt, itemsep=2pt]
+    \item Managed the product backlog for a B2B analytics dashboard used by 120+ enterprise accounts.
+    \item Ran weekly customer discovery interviews that directly shaped 3 major roadmap pivots.
+  \end{itemize}
+}
+
+% ---------- EDUCATION ----------
+\section{Education}
+\timelineEntry{2017 -- 2021}{B.A. in Product Design}{Stanford University}{
+  Graduated with Distinction. Minor in Technology Entrepreneurship.
+}
+
+% ---------- AREAS OF EXPERTISE ----------
+\section{Skills \& Competencies}
+\skillRow{Expertise}{Product Lifecycle Management, Agile / Scrum Frameworks, User Research, A/B Testing, Roadmap Planning}
+\skillRow{Tools}{Jira, Confluence, Figma, SQL, Mixpanel, Google Analytics, Tableau, Amplitude}
+\skillRow{Certifications}{Certified Scrum Product Owner (CSPO), Pragmatic Institute Certified (PMC-IV)}
+
+% ---------- ACHIEVEMENTS ----------
+\section{Achievements}
+\skillRow{2024}{Recognized as Global Tech Ecosystems' "Product Leader of the Year." Speaker, ProductCon San Francisco 2022.}
+
+\end{document}

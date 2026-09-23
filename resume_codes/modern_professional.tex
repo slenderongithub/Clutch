@@ -1,0 +1,101 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+% Clean, built-in Helvetica/Arial style sans-serif font variant
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Margin adjustments
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.0in}
+\addtolength{\topmargin}{-0.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+
+% Custom modern slate color palette
+\definecolor{slategrey}{RGB}{74, 85, 104}
+\definecolor{charcoal}{RGB}{45, 55, 72}
+
+% Header formatting (title text is written in caps directly — \uppercase
+% requires a braced argument and cannot be used as a bare declaration
+% the way \bfseries can)
+\titleformat{\section}{
+  \vspace{-2pt}\color{slategrey}\bfseries\large
+}{}{0em}{}[\color{slategrey}\titlerule]
+\titlespacing*{\section}{0pt}{8pt}{6pt}
+
+\begin{document}
+\color{charcoal}
+
+% ---------- HEADER ----------
+\begin{center}
+    {\Huge \textbf{\color{charcoal} DR. MARCUS VANCE}} \\ \vspace{4pt}
+    \small Biomedical Engineer \ $\cdot$ \ Boston, MA \ $\cdot$ \ \href{mailto:m.vance@email.com}{m.vance@email.com} \ $\cdot$ \ +1 (617) 555-0122
+\end{center}
+\vspace{4pt}
+
+% ---------- RESEARCH & EXPERIENCE ----------
+\section{RESEARCH \& EXPERIENCE}
+
+\textbf{Senior Biomedical Researcher} \hfill Jan. 2024 -- Present \\
+\textit{Boston Health Research Laboratories} \hfill Boston, MA
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Spearheaded development cycles for biocompatible polymer sensors targeting micro-fluidic testing devices.
+    \item Secured \$2.4M in institutional research funding grants across a sequence of 3 validation reviews.
+    \item Published primary study findings across peer-reviewed international engineering journals.
+\end{itemize}
+
+\vspace{6pt}
+\textbf{Graduate Research Assistant} \hfill Sep. 2020 -- Dec. 2023 \\
+\textit{MIT Biomaterials Laboratory} \hfill Cambridge, MA
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Modeled chemical reaction environments using high-performance cluster computing configurations.
+    \item Designed and validated a novel hydrogel scaffold formulation later licensed by a MIT spinout company.
+    \item Mentored 4 undergraduate researchers on cell-culture protocol design and data analysis workflows.
+\end{itemize}
+
+\vspace{6pt}
+\textbf{Research Intern} \hfill Jun. 2019 -- Aug. 2019 \\
+\textit{Massachusetts General Hospital, Department of Bioengineering} \hfill Boston, MA
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Assisted in the design of a wearable biosensor prototype for continuous glucose monitoring.
+    \item Conducted literature reviews synthesizing 60+ papers to inform an NIH grant renewal application.
+\end{itemize}
+
+% ---------- EDUCATION ----------
+\section{EDUCATION}
+
+\textbf{Massachusetts Institute of Technology} \hfill Cambridge, MA \\
+Ph.D. in Biological Engineering \hfill Dec. 2023 \\
+\vspace{4pt}
+\textbf{Johns Hopkins University} \hfill Baltimore, MD \\
+B.S. in Biomedical Engineering, \textit{summa cum laude} \hfill May 2020
+
+% ---------- GRANTS & HONORS ----------
+\section{GRANTS \& HONORS}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item NIH F31 Predoctoral Fellowship, National Institute of Biomedical Imaging and Bioengineering \hfill 2022
+    \item MIT Biomaterials Laboratory Outstanding Research Award \hfill 2023
+    \item Johns Hopkins Dean's Undergraduate Research Award \hfill 2020
+\end{itemize}
+
+% ---------- PUBLICATIONS & SKILLS ----------
+\section{PUBLICATIONS \& SKILLS}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item \textbf{Selected Publications:} Vance, M. et al. (2025). "Biopolymer Interactions in Microfluidic Channels." \textit{Journal of Bio-Engineering}, 14(2), 112--120.
+    \item Vance, M., Okafor, T. (2024). "Hydrogel Scaffold Degradation Kinetics Under Physiological Flow." \textit{Biomaterials Science}, 9(3), 45--58.
+    \item Vance, M. et al. (2023). "Wearable Sensor Design for Continuous Glucose Monitoring." \textit{IEEE Transactions on Biomedical Engineering}, 70(11), 3021--3029.
+    \item \textbf{Laboratory Skills:} Microfabrication, Polymer Synthesis, HPLC, Mass Spectrometry, Cell Culture, Confocal Microscopy
+    \item \textbf{Computational Tools:} MATLAB, Python (SciPy), SolidWorks, R (Bioconductor), COMSOL Multiphysics, \LaTeX
+\end{itemize}
+
+\end{document}

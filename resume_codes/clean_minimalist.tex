@@ -1,0 +1,111 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+% Color palette
+\definecolor{primary}{RGB}{40, 44, 52}
+\definecolor{secondary}{RGB}{90, 95, 105}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.0in}
+\addtolength{\topmargin}{-0.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section Titles without lines (title text is written in caps directly —
+% \uppercase requires a braced argument and cannot be used as a bare
+% declaration the way \bfseries can)
+\titleformat{\section}{
+  \vspace{10pt}\color{primary}\large\bfseries
+}{}{0em}{}
+\titlespacing*{\section}{0pt}{4pt}{4pt}
+
+\newcommand{\job}[4]{
+  \vspace{4pt}
+  \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{\color{primary}#1} \ $|$ \ \textit{\color{secondary}#2} & \color{secondary}#4 \\
+    \textbf{\color{secondary}\small #3} & \\
+  \end{tabular*}\vspace{-4pt}
+}
+
+\begin{document}
+
+% ---------- HEADER ----------
+{\Huge \textbf{\color{primary} JORDAN BELLER}} \\ \vspace{4pt}
+{\color{secondary} DevOps \& Infrastructure Engineer} \\ \vspace{6pt}
+\small \color{secondary} Seattle, WA $|$ \href{mailto:jordan@beller.io}{jordan@beller.io} $|$ +1 (206) 555-0143 $|$ \href{https://github.com/jordanbeller}{github.com/jordanbeller}
+
+% ---------- EXPERIENCE ----------
+\section{EXPERIENCE}
+
+\job{Senior Site Reliability Engineer}{CloudScale Inc.}{San Jose, CA}{Feb. 2024 -- Present}
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Architected multi-region Kubernetes deployments sustaining 99.99\% availability windows for core traffic.
+    \item Rewrote baseline Infrastructure-as-Code setups via Terraform, reducing environment build times by 40\%.
+    \item Implemented unified Prometheus and Grafana alerting systems to minimize operational engineering alert fatigue.
+\end{itemize}
+
+\job{Systems Engineer}{DataFortress Systems}{Seattle, WA}{Jul. 2021 -- Jan. 2024}
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Managed configurations for over 400 distributed Linux instances utilizing automated Ansible playbooks.
+    \item Designed centralized log monitoring components using ELK stack clusters processing 2TB of telemetry daily.
+    \item Migrated legacy CI pipelines to GitHub Actions, cutting average build-to-deploy time from 25 to 9 minutes.
+\end{itemize}
+
+\job{DevOps Engineer}{BrightPath Technologies}{Seattle, WA}{Jan. 2019 -- Jun. 2021}
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Containerized a monolithic Django application into 12 discrete services orchestrated via Docker Compose and Kubernetes.
+    \item Built self-service internal tooling that reduced new-engineer environment setup time from 2 days to 45 minutes.
+    \item Automated nightly database backup and disaster-recovery drills, achieving a 15-minute recovery time objective.
+\end{itemize}
+
+\job{IT Support Technician}{University of Washington}{Seattle, WA}{Sep. 2017 -- Dec. 2018}
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Administered a 150-machine computer lab fleet, scripting automated imaging with Bash and PowerShell.
+    \item Provided tier-1 support for networking and hardware issues across three campus buildings.
+\end{itemize}
+
+% ---------- PROJECTS ----------
+\section{PROJECTS}
+\textbf{Fleetwatch} \ $|$ \ \textit{Go, Prometheus, gRPC} \hfill Personal Project
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Built an open-source fleet health dashboard aggregating metrics from 500+ simulated edge nodes in real time.
+\end{itemize}
+
+\textbf{Terraform Module Registry} \ $|$ \ \textit{Terraform, Python, GitHub Actions} \hfill Personal Project
+\begin{itemize}[leftmargin=0.15in, topsep=2pt, itemsep=2pt]
+    \item Published a set of reusable Terraform modules for common AWS networking patterns, adopted by 30+ downstream repos.
+\end{itemize}
+
+% ---------- EDUCATION ----------
+\section{EDUCATION}
+\textbf{University of Washington} \ $|$ \ B.S. in Computer Engineering \hfill 2021 \\
+\textit{\small Relevant Coursework: Distributed Systems, Cloud Computing, Computer Networks, Operating Systems}
+
+% ---------- SKILLS ----------
+\section{SKILLS}
+\textbf{Infrastructure:} AWS, GCP, Kubernetes, Docker, Terraform, Ansible, GitHub Actions, Jenkins \\
+\textbf{Systems \& Code:} Linux, Bash, Python, Go, Network Routing Protocols, Security Hardening \\
+\textbf{Monitoring:} Prometheus, Grafana, Datadog, ELK Stack, PagerDuty \\
+\textbf{Practices:} On-Call Incident Response, Blue/Green Deployments, Chaos Engineering, Cost Optimization
+
+% ---------- CERTIFICATIONS ----------
+\section{CERTIFICATIONS}
+AWS Certified Solutions Architect -- Associate \ $|$ \ Certified Kubernetes Administrator (CKA) \ $|$ \ HashiCorp Certified: Terraform Associate \ $|$ \ Certified Kubernetes Security Specialist (CKS)
+
+% ---------- ADDITIONAL ----------
+\section{ADDITIONAL}
+Speaker, KubeCon North America 2023 -- ``Chaos Engineering at Scale on Multi-Region Clusters.'' \\
+Volunteer mentor, Seattle DevOps Meetup, guiding early-career engineers through Kubernetes fundamentals.
+
+\end{document}
