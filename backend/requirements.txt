@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+jinja2
+google-genai
+chromadb
+pypdf
+python-multipart
+neo4j
+httpx
+llama-cpp-python
