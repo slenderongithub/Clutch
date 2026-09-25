@@ -1,3 +1,5 @@
+import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -90,50 +92,69 @@ def render_resume_tex(template_id: str, content: ResumeContent, contact: list[tu
     )
 
 
+def _seed_tectonic_cache() -> None:
+    """The shipped app carries a pre-filled (read-only) Tectonic cache; copy
+    it to the writable cache dir on first run so compiling works offline."""
+    seed, cache = os.environ.get("CLUTCH_TECTONIC_SEED"), os.environ.get("TECTONIC_CACHE_DIR")
+    if seed and cache and os.path.isdir(seed) and not os.path.exists(cache):
+        shutil.copytree(seed, cache)
+
+
+_seed_tectonic_cache()
+
+
+def _tectonic() -> str | None:
+    """The bundled Tectonic (set by the app), else one on PATH."""
+    path = os.environ.get("CLUTCH_TECTONIC") or shutil.which("tectonic")
+    return os.path.abspath(path) if path and os.access(path, os.X_OK) else None
+
+
+def _engine_command(tex_name: str, workdir: Path) -> list[list[str]]:
+    """Command(s) to run. Tectonic — a 54 MB self-contained engine shipped
+    inside Clutch.app — handles reruns itself and fetches only the packages a
+    document uses; pdflatex (MacTeX) remains as a developer fallback. Both
+    are locked down: a .tex file must never run shell commands."""
+    tectonic = _tectonic()
+    if tectonic:
+        return [[tectonic, "-X", "compile", "--untrusted", "--outdir", str(workdir), tex_name]]
+    pdflatex = [
+        "pdflatex", "-interaction=nonstopmode", "-no-shell-escape", "-halt-on-error",
+        "-output-directory", str(workdir), tex_name,
+    ]
+    return [pdflatex, pdflatex]  # a second pass resolves cross-references
+
+
 def compile_tex_to_pdf(tex_source: str) -> str:
-    """Compiles tex_source with pdflatex and returns the absolute path to
-    the resulting PDF.
+    """Compiles tex_source and returns the absolute path to the PDF.
 
     Uses tempfile.mkdtemp() rather than TemporaryDirectory() deliberately:
-    the latter deletes its directory (PDF included) the moment this
-    function returns, but the caller needs the PDF to still be on disk
-    afterward so its path can be handed back to Swift. Every call gets its
-    own fresh directory, so the fixed "resume.tex"/"resume.pdf" basenames
-    inside it never collide across compiles.
+    the caller needs the PDF on disk after this returns so its path can be
+    handed back to Swift. Every call gets its own fresh directory.
     """
     workdir = Path(tempfile.mkdtemp(prefix="clutch_resume_"))
     tex_path = workdir / "resume.tex"
     tex_path.write_text(tex_source)
 
+    result = None
     try:
-        for _ in range(2):  # a second pass resolves any cross-references
-            result = subprocess.run(
-                [
-                    "pdflatex",
-                    "-interaction=nonstopmode",
-                    "-no-shell-escape",  # a .tex file must never run commands
-                    "-halt-on-error",
-                    "-output-directory",
-                    str(workdir),
-                    tex_path.name,
-                ],
-                cwd=workdir,
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
+        for command in _engine_command(tex_path.name, workdir):
+            # A cold Tectonic cache downloads fonts/packages once (the DMG
+            # ships a warm one); retry once if a download glitch interrupts it.
+            for _ in range(3):
+                result = subprocess.run(command, cwd=workdir, capture_output=True, text=True, timeout=300)
+                if result.returncode == 0 or "note: downloading" not in result.stderr:
+                    break
     except FileNotFoundError as exc:
-        raise RuntimeError(
-            "pdflatex is not installed or not on PATH. Install MacTeX and try again."
-        ) from exc
+        raise RuntimeError("No LaTeX engine found. Reinstall Clutch (it ships with one).") from exc
     except subprocess.TimeoutExpired as exc:
-        raise RuntimeError("pdflatex timed out while compiling.") from exc
+        raise RuntimeError("LaTeX timed out while compiling.") from exc
 
     pdf_path = workdir / "resume.pdf"
     if not pdf_path.exists():
         log_path = workdir / "resume.log"
-        log_tail = log_path.read_text(errors="ignore")[-2000:] if log_path.exists() else result.stdout[-2000:]
-        raise RuntimeError(f"pdflatex failed to produce a PDF:\n{log_tail}")
+        output = (result.stderr + result.stdout) if result else ""
+        log_tail = log_path.read_text(errors="ignore")[-2000:] if log_path.exists() else output[-2000:]
+        raise RuntimeError(f"LaTeX failed to produce a PDF:\n{log_tail}")
 
     for junk_ext in (".aux", ".log", ".out"):
         (workdir / f"resume{junk_ext}").unlink(missing_ok=True)

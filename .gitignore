@@ -4,3 +4,7 @@ DerivedData/
 backend/.venv/
 backend/.chroma/
 __pycache__/
+
+# packaging outputs (scripts/make_dmg.sh)
+build/
+*.dmg

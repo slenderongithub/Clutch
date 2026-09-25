@@ -23,15 +23,7 @@ final class BackendController {
     /// ponytail: resolved from this source file's location, which is right
     /// for dev builds run from the repo. Override with CLUTCH_BACKEND_DIR;
     /// bundle the backend into Resources if Clutch ever ships as a .dmg.
-    static let backendDirectory: URL = {
-        if let override = ProcessInfo.processInfo.environment["CLUTCH_BACKEND_DIR"] {
-            return URL(fileURLWithPath: override)
-        }
-        return URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("backend")
-    }()
+    static var backendDirectory: URL { Runtime.current.sourceDirectory }
 
     static let logURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/Clutch/backend.log")
@@ -55,9 +47,11 @@ final class BackendController {
             return
         }
 
-        let python = Self.backendDirectory.appendingPathComponent(".venv/bin/python")
-        guard FileManager.default.isExecutableFile(atPath: python.path) else {
-            status = .offline("No backend virtualenv at \(Self.backendDirectory.path). Run backend/setup_backend.sh.")
+        let runtime = Runtime.current
+        guard FileManager.default.isExecutableFile(atPath: runtime.python.path) else {
+            status = .offline(runtime.isBundled
+                ? "Clutch's bundled engine is missing or damaged. Reinstall Clutch."
+                : "No backend virtualenv at \(runtime.sourceDirectory.path). Run backend/setup_backend.sh.")
             return
         }
 
@@ -67,7 +61,7 @@ final class BackendController {
             // 8000 must never stop Clutch from starting.
             network.port = Self.isPortFree(Self.preferredPort) ? Self.preferredPort : Self.freePort()
             do {
-                process = try launch(python: python, port: network.port)
+                process = try launch(runtime, port: network.port)
             } catch {
                 status = .offline("Couldn't launch the backend: \(error.localizedDescription)")
                 return
@@ -100,21 +94,7 @@ final class BackendController {
     }
 
     private func becameOnline() async {
-        await Self.pushGraphConfig()
         status = .online
-    }
-
-    /// Sends the Neo4j settings saved in Settings → Knowledge Graph. Skipped
-    /// until the user has saved some, so env-var configuration still works.
-    @discardableResult
-    static func pushGraphConfig() async -> GraphResponse? {
-        let defaults = UserDefaults.standard
-        guard defaults.object(forKey: "neo4jUser") != nil || !Secrets.shared.neo4jPassword.isEmpty else { return nil }
-        return try? await NetworkManager.shared.configureGraph(
-            uri: defaults.string(forKey: "neo4jURI") ?? "bolt://localhost:7687",
-            user: defaults.string(forKey: "neo4jUser") ?? "neo4j",
-            password: Secrets.shared.neo4jPassword
-        )
     }
 
     private static let preferredPort = 8000
@@ -148,18 +128,19 @@ final class BackendController {
         return Int(UInt16(bigEndian: address.sin_port))
     }
 
-    private func launch(python: URL, port: Int) throws -> Process {
+    private func launch(_ runtime: Runtime, port: Int) throws -> Process {
         let process = Process()
-        process.executableURL = python
+        process.executableURL = runtime.python
         // No access log: the keep-alive health checks would drown real errors.
         process.arguments = ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", String(port), "--no-access-log"]
-        process.currentDirectoryURL = Self.backendDirectory
+        process.currentDirectoryURL = runtime.sourceDirectory
 
-        // GUI apps don't inherit a shell PATH, so pdflatex (MacTeX) and
-        // Homebrew tools would otherwise be invisible to the backend.
+        // GUI apps don't inherit a shell PATH; in development this lets the
+        // backend fall back to a MacTeX pdflatex if Tectonic isn't around.
         var environment = ProcessInfo.processInfo.environment
         let extraPaths = "/Library/TeX/texbin:/opt/homebrew/bin:/usr/local/bin"
         environment["PATH"] = [extraPaths, environment["PATH"] ?? "/usr/bin:/bin"].joined(separator: ":")
+        environment.merge(runtime.environment) { _, new in new }
         process.environment = environment
 
         // Append, never truncate: the log must survive relaunches to be useful.
@@ -175,5 +156,53 @@ final class BackendController {
 
         try process.run()
         return process
+    }
+}
+
+/// Where the backend and its tools live. A shipped Clutch.app carries
+/// everything in Contents/Resources/backend (see scripts/make_dmg.sh): a
+/// standalone Python with the dependencies, the backend source, Tectonic
+/// with a pre-filled package cache, and the embedding model — so nothing
+/// else needs installing. In development it's the repo's backend/.venv.
+struct Runtime {
+    let isBundled: Bool
+    let sourceDirectory: URL
+    let python: URL
+    let environment: [String: String]
+
+    static let current: Runtime = bundled ?? development
+
+    private static var bundled: Runtime? {
+        guard let resources = Bundle.main.resourceURL?.appendingPathComponent("backend") else { return nil }
+        let python = resources.appendingPathComponent("runtime/bin/python3")
+        guard FileManager.default.fileExists(atPath: python.path) else { return nil }
+        let data = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Clutch")
+        return Runtime(
+            isBundled: true,
+            sourceDirectory: resources.appendingPathComponent("app"),
+            python: python,
+            environment: [
+                "CLUTCH_TECTONIC": resources.appendingPathComponent("bin/tectonic").path,
+                "CLUTCH_TECTONIC_SEED": resources.appendingPathComponent("tectonic-cache").path,
+                "TECTONIC_CACHE_DIR": data.appendingPathComponent("tectonic-cache").path,
+                "CLUTCH_EMBEDDING_DIR": resources.appendingPathComponent("embedding/all-MiniLM-L6-v2").path,
+                "PYTHONDONTWRITEBYTECODE": "1",  // the app bundle is read-only
+                "PYTHONNOUSERSITE": "1",         // never pick up the user's own packages
+            ]
+        )
+    }
+
+    private static var development: Runtime {
+        let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let source = ProcessInfo.processInfo.environment["CLUTCH_BACKEND_DIR"].map { URL(fileURLWithPath: $0) }
+            ?? repo.appendingPathComponent("backend")
+        let tectonic = repo.appendingPathComponent("build/bin/tectonic")
+        return Runtime(
+            isBundled: false,
+            sourceDirectory: source,
+            python: source.appendingPathComponent(".venv/bin/python"),
+            environment: FileManager.default.isExecutableFile(atPath: tectonic.path) ? ["CLUTCH_TECTONIC": tectonic.path] : [:]
+        )
     }
 }

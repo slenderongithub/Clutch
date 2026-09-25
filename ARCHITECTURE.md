@@ -4,17 +4,17 @@ This document defines the strict architectural boundaries of the Clutch applicat
 
 ## 1. The Frontend (macOS Native UI)
 - **Framework:** Swift and SwiftUI.
-- **Role:** Handles all UI/UX, file selection, user settings, dual-mode toggling, and displaying the Neo4j Knowledge Graph visualizer (via Swift-compatible graphing libraries or embedded WebViews).
+- **Role:** Handles all UI/UX, file selection, user settings, dual-mode toggling, and displaying the Knowledge Graph visualizer (a live force-directed SwiftUI Canvas).
 - **Communication:** The Swift app spawns a background Python process on launch. It communicates with this Python backend via HTTP requests (local FastAPI) or standard input/output (stdout).
 
 ## 2. The Python AI Backend
 - **Role:** The brain of the operation. Handles parsing PDFs/Docs, creating embeddings, searching databases, formatting prompts, and compiling LaTeX.
 - **The Pipeline:**
     1. **Ingestion:** Parses user's "Master Brag Document".
-    2. **Embedding & Graphing:** Sends data to a local Vector DB (Chroma/FAISS) and local Neo4j Graph DB.
-    3. **Retrieval:** Analyzes the pasted JD, queries the Vector DB for semantic matches, and queries Neo4j for relational matches (e.g., "Find all projects where Python was used").
+    2. **Embedding & Graphing:** Sends data to a local Vector DB (Chroma) and an embedded SQLite knowledge graph built deterministically from each document's sections.
+    3. **Retrieval:** Analyzes the pasted JD, queries the Vector DB for semantic matches, and expands through the knowledge graph for relational matches (e.g., "projects where Python was used").
     4. **Synthesis:** Sends the retrieved context + JD to the Inference Engine.
-    5. **Compilation:** Takes the LLM output (JSON or structured text), injects it into a `.tex` template using `Jinja2`, and triggers a `subprocess` call to `pdflatex`.
+    5. **Compilation:** Takes the LLM output (JSON or structured text), injects it into a `.tex` template using `Jinja2`, and compiles it with the bundled Tectonic engine (pdflatex as a developer fallback).
 
 ## 3. The Dual-Inference Engine (The Router)
 The backend must support a dynamic router based on user preference:
