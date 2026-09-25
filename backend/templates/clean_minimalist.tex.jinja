@@ -24,7 +24,7 @@
 \begin{document}
 {\Huge \textbf{\VAR{full_name|upper|latex_escape}}}\par\vspace{4pt}
 \BLOCK{if headline}{\large\color{secondary} \VAR{headline|latex_escape}}\par\vspace{3pt}\BLOCK{endif}
-\BLOCK{if contact_parts}{\small\color{secondary} \VAR{contact_parts|join('\quad\textbullet\quad ')}}\par\BLOCK{endif}
+\BLOCK{if contact_parts}{\small\color{secondary} \VAR{contact_parts|join('\\quad\\textbullet\\quad ')}}\par\BLOCK{endif}
 
 \BLOCK{include "_sections.tex.jinja"}
 

@@ -25,7 +25,7 @@
 \begin{document}
 {\fontsize{26}{30}\selectfont\bfseries \VAR{full_name|latex_escape}}\par\vspace{2pt}
 \BLOCK{if headline}{\large\color{accent} \VAR{headline|latex_escape}}\par\vspace{4pt}\BLOCK{endif}
-\BLOCK{if contact_parts}{\small\color{muted} \VAR{contact_parts|join('\quad ')}}\par\BLOCK{endif}
+\BLOCK{if contact_parts}{\small\color{muted} \VAR{contact_parts|join('\\quad ')}}\par\BLOCK{endif}
 \vspace{2pt}{\color{accent}\rule{\linewidth}{1.2pt}}
 
 \BLOCK{include "_sections.tex.jinja"}

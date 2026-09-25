@@ -24,7 +24,7 @@
 \begin{document}
 {\fontsize{30}{32}\selectfont\bfseries \VAR{full_name|latex_escape}}\par\vspace{2pt}
 \BLOCK{if headline}{\color{sub}\large \VAR{headline|latex_escape}}\par\vspace{3pt}\BLOCK{endif}
-\BLOCK{if contact_parts}{\small\color{graytext} \VAR{contact_parts|join(' \textbar{} ')}}\par\BLOCK{endif}
+\BLOCK{if contact_parts}{\small\color{graytext} \VAR{contact_parts|join(' \\textbar{} ')}}\par\BLOCK{endif}
 \vspace{2pt}\hrule
 
 \BLOCK{include "_sections.tex.jinja"}

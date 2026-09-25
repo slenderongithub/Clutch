@@ -35,7 +35,8 @@ def demo():
         for must in ("Projects", "LeafScan", "Leadership", "Vice President", "AWS Cloud Practitioner",
                      "Winner, Hack@State", "State University", r"\href{https://github.com/jane}", "Languages"):
             assert must in tex, f"{template}: missing {must!r}"
-        pdf = latex.compile_tex_to_pdf(tex)  # raises with the pdflatex log on failure
+        assert "\t" not in tex, f"{template}: a Jinja escape turned a LaTeX command into a tab"
+        pdf = latex.compile_tex_to_pdf(tex)  # raises with the LaTeX log on failure
         assert Path(pdf).stat().st_size > 5_000, template
         print(f"  {template}: ok")
     print("template self-check passed")

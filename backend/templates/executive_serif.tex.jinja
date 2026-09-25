@@ -23,7 +23,7 @@
 \begin{center}
   {\Huge \scshape \VAR{full_name|latex_escape}} \\ \vspace{3pt}
   \BLOCK{if headline}{\small \itshape \VAR{headline|latex_escape}} \\ \vspace{2pt}\BLOCK{endif}
-  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \enspace\textperiodcentered\enspace ')}}\BLOCK{endif}
+  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \\enspace\\textperiodcentered\\enspace ')}}\BLOCK{endif}
 \end{center}
 
 \BLOCK{include "_sections.tex.jinja"}

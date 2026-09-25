@@ -26,7 +26,7 @@
 \begin{center}
   {\Huge \textbf{\VAR{full_name|upper|latex_escape}}} \\ \vspace{4pt}
   \BLOCK{if headline}{\color{brand}\VAR{headline|latex_escape}} \\ \vspace{2pt}\BLOCK{endif}
-  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \ $\cdot$ \ ')}}\BLOCK{endif}
+  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \\ $\\cdot$ \\ ')}}\BLOCK{endif}
 \end{center}
 
 \BLOCK{include "_sections.tex.jinja"}
