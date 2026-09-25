@@ -21,7 +21,7 @@ struct SettingsView: View {
 
             CareerDocumentsSection()
 
-            GraphConnectionSection()
+            GraphSection()
 
             Section("Editor") {
                 Toggle("Auto-save resume drafts", isOn: $autoSaveEnabled)
@@ -76,32 +76,17 @@ struct SettingsView: View {
     }
 }
 
-/// Neo4j credentials. A GUI-launched backend can't see credentials exported
-/// in a terminal, so they're configured here and pushed on every launch.
-private struct GraphConnectionSection: View {
-    // ponytail: stored in UserDefaults like the Gemini key; move both to the
-    // Keychain if Clutch ever ships beyond a personal machine.
-    @AppStorage("neo4jURI") private var uri = "bolt://localhost:7687"
-    @AppStorage("neo4jUser") private var user = "neo4j"
-    @State private var secrets = Secrets.shared
-
-    @State private var isConnecting = false
+/// The knowledge graph lives in a small database file next to the library
+/// and is built from the documents themselves — nothing to set up.
+private struct GraphSection: View {
     @State private var isRebuilding = false
-    @State private var result: GraphResponse?
     @State private var rebuildMessage: String?
 
     var body: some View {
         Section {
-            TextField("Bolt URI", text: $uri)
-            TextField("Username", text: $user)
-            SecureField("Password", text: $secrets.neo4jPassword)
             HStack {
-                if let result {
-                    if result.available {
-                        Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                    } else {
-                        Label(result.reason ?? "Couldn't connect.", systemImage: "xmark.circle.fill").foregroundStyle(.red)
-                    }
+                if let rebuildMessage {
+                    Text(rebuildMessage).font(.callout).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Button(action: rebuild) {
@@ -111,24 +96,13 @@ private struct GraphConnectionSection: View {
                         Label("Rebuild from Documents", systemImage: "arrow.triangle.2.circlepath")
                     }
                 }
-                .disabled(isRebuilding || isConnecting)
+                .disabled(isRebuilding)
                 .help("Recreate the graph from every document in your library")
-                Button(action: connect) {
-                    if isConnecting {
-                        ProgressView().controlSize(.small)
-                    } else {
-                        Label("Connect", systemImage: "bolt.horizontal.circle")
-                    }
-                }
-                .disabled(isConnecting)
-            }
-            if let rebuildMessage {
-                Text(rebuildMessage).font(.callout).foregroundStyle(.secondary)
             }
         } header: {
-            Text("Knowledge Graph (Neo4j)")
+            Text("Knowledge Graph")
         } footer: {
-            Text("Optional. Powers the Knowledge Graph and graph-expanded retrieval. Everything else works without it.")
+            Text("Built automatically from your documents: projects, the skills they used, and where you worked. Stored on this Mac.")
         }
     }
 
@@ -138,25 +112,9 @@ private struct GraphConnectionSection: View {
             defer { isRebuilding = false }
             do {
                 let graph = try await NetworkManager.shared.rebuildGraph()
-                rebuildMessage = graph.available
-                    ? "Rebuilt: \(graph.nodes.count) entities, \(graph.edges.count) connections."
-                    : (graph.reason ?? "Neo4j isn't connected.")
+                rebuildMessage = "Rebuilt: \(graph.nodes.count) entities, \(graph.edges.count) connections."
             } catch {
                 rebuildMessage = error.localizedDescription
-            }
-        }
-    }
-
-    private func connect() {
-        isConnecting = true
-        // Writing the keys (even unchanged defaults) opts into pushing them.
-        UserDefaults.standard.set(user, forKey: "neo4jUser")
-        UserDefaults.standard.set(uri, forKey: "neo4jURI")
-        Task {
-            defer { isConnecting = false }
-            let response = await BackendController.pushGraphConfig()
-            withAnimation(appSpring) {
-                result = response ?? GraphResponse(available: false, reason: "The backend isn't running.", nodes: [], edges: [])
             }
         }
     }
@@ -230,7 +188,7 @@ private struct CareerDocumentsSection: View {
                 }
             }
         } footer: {
-            Text("Everything Clutch may use about you. Documents are chunked and embedded on this Mac; the \(inferenceMode == .cloud ? "Gemini" : "local") engine also extracts your knowledge graph when Neo4j is connected. Adding a file with the same name replaces its older version.")
+            Text("Everything Clutch may use about you. Documents are chunked and embedded on this Mac; and your knowledge graph is built from them automatically. Adding a file with the same name replaces its older version.")
         }
         // Re-runs when the backend comes online, so a slow start never
         // leaves the library looking empty.

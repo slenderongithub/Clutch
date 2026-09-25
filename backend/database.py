@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import time
 from pathlib import Path
@@ -6,12 +7,14 @@ from pathlib import Path
 import chromadb
 
 import parsing
-from graph import LEGACY_DOC_ID
 from models import RetrievedChunk
 
 logger = logging.getLogger(__name__)
 
-_CHROMA_PATH = Path(__file__).parent / ".chroma"
+from paths import DATA_DIR
+
+_CHROMA_PATH = DATA_DIR / "library"
+_OLD_CHROMA_PATH = Path(__file__).parent / ".chroma"  # pre-bundling dev location
 _SOURCES_DIR = _CHROMA_PATH / "sources"  # raw text per document, for re-chunking
 _LEGACY_SOURCE = _CHROMA_PATH / "source.txt"
 _COLLECTION_NAME = "career_history"
@@ -20,8 +23,20 @@ _COLLECTION_NAME = "career_history"
 # 3 = section-aware chunks tagged with the document they came from
 # 4 = same, re-chunked after PDF-artifact cleanup ("V ellore" → "Vellore")
 _SCHEMA = 4
+LEGACY_DOC_ID = "earlier-upload"
 # Telemetry off: Chroma sends anonymous usage events by default, and
 # Clutch promises nothing leaves the Mac.
+if os.environ.get("CLUTCH_EMBEDDING_DIR"):
+    # The shipped app bundles the embedding model so nothing downloads on
+    # first use (Chroma would otherwise fetch it into ~/.cache).
+    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
+
+    ONNXMiniLM_L6_V2.DOWNLOAD_PATH = Path(os.environ["CLUTCH_EMBEDDING_DIR"])
+
+if not _CHROMA_PATH.exists() and _OLD_CHROMA_PATH.exists():
+    import shutil
+
+    shutil.copytree(_OLD_CHROMA_PATH, _CHROMA_PATH)  # one-time move out of the source tree
 _client = chromadb.PersistentClient(path=str(_CHROMA_PATH), settings=chromadb.Settings(anonymized_telemetry=False))
 
 

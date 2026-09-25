@@ -275,10 +275,10 @@ struct GraphExplorerView: View {
                 )
             } else if let response = viewModel.response, !response.available {
                 unavailable(
-                    title: "Knowledge Graph Offline",
+                    title: "Couldn't Read the Graph",
                     icon: "point.3.connected.trianglepath.dotted",
-                    message: (response.reason ?? "Neo4j isn't reachable.")
-                        + " Check the connection in Settings → Knowledge Graph, then ingest your Master Brag Document."
+                    message: (response.reason ?? "The graph file couldn't be read.")
+                        + " Try Settings → Knowledge Graph → Rebuild from Documents."
                 )
             } else {
                 unavailable(
@@ -306,7 +306,7 @@ struct GraphExplorerView: View {
                     Task { await viewModel.load() }
                 }
                 .disabled(viewModel.isLoading)
-                .help("Reload the graph from Neo4j")
+                .help("Reload the graph")
             }
         }
         .task {
@@ -872,7 +872,7 @@ private struct NodeInspector: View {
 // MARK: - Sample data
 
 /// A realistic sample career graph so the explorer can be tried before
-/// Neo4j is set up. Only shown when the user explicitly asks for it.
+/// you've added documents. Only shown when the user explicitly asks for it.
 private enum DemoGraph {
     static let response: GraphResponse = {
         let companies = ["Stripe", "Datadog", "UIUC Systems Lab"]

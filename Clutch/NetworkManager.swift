@@ -250,7 +250,6 @@ final class NetworkManager {
     }
 
     /// Uploads several career documents (.pdf/.txt/.md) in one request.
-    /// Graph extraction runs only if an engine and Neo4j are available.
     func ingestDocuments(
         fileURLs: [URL],
         mode: IngestMode,
@@ -302,16 +301,10 @@ final class NetworkManager {
         try await post(path: "api/v1/documents/delete", body: ["doc_id": id])
     }
 
-    /// Fetches the career knowledge graph. available=false means Neo4j
-    /// isn't reachable server-side — never thrown as an error.
+    /// Fetches the career knowledge graph.
     func fetchGraph() async throws -> GraphResponse {
         let request = URLRequest(url: baseURL.appendingPathComponent("api/v1/graph"))
         return try await send(request)
-    }
-
-    /// Points the backend at the user's Neo4j; the response says whether it connected.
-    func configureGraph(uri: String, user: String, password: String) async throws -> GraphResponse {
-        try await post(path: "api/v1/graph/config", timeout: 15, body: ["uri": uri, "user": user, "password": password])
     }
 
     private func mimeType(for pathExtension: String) -> String {

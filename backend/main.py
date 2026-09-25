@@ -6,9 +6,13 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 import database
-from api import router
+import graph
+from api import rebuild_graph_from_documents, router
+from paths import DATA_DIR
 
 database.migrate_if_needed()
+if graph.is_empty() and not database.is_empty():
+    rebuild_graph_from_documents()  # first run on the SQLite graph (or after a reset)
 
 # Every API call must carry this token. The backend listens on localhost,
 # but any web page open in the user's browser can still send it simple
@@ -17,7 +21,7 @@ database.migrate_if_needed()
 # preflight — which this server never grants — and web pages can't read the
 # token file, so they can't forge it.
 TOKEN = os.environ.get("CLUTCH_TOKEN") or secrets.token_urlsafe(32)
-TOKEN_DIR = Path(os.environ.get("CLUTCH_TOKEN_DIR", Path.home() / "Library" / "Application Support" / "Clutch"))
+TOKEN_DIR = DATA_DIR
 _token_written = False
 
 

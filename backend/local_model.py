@@ -21,9 +21,9 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
-MODELS_DIR = Path(
-    os.environ.get("CLUTCH_MODELS_DIR", Path.home() / "Library" / "Application Support" / "Clutch" / "models")
-)
+from paths import DATA_DIR
+
+MODELS_DIR = Path(os.environ.get("CLUTCH_MODELS_DIR", DATA_DIR / "models"))
 
 
 @dataclass(frozen=True)
@@ -194,7 +194,7 @@ class Device:
 
 def device_specs() -> Device:
     try:
-        chip = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True, timeout=2).stdout.strip()
+        chip = subprocess.run(["/usr/sbin/sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True, timeout=2).stdout.strip()
     except Exception:
         chip = ""
     memory = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")

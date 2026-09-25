@@ -14,12 +14,6 @@ class JobDescriptionPayload(BaseModel):
     user_instructions: str = ""
 
 
-class GraphConfig(BaseModel):
-    uri: str = "bolt://localhost:7687"
-    user: str = "neo4j"
-    password: str = ""
-
-
 class RetrieveRequest(BaseModel):
     jd_text: str
 
@@ -121,7 +115,7 @@ class GraphExtraction(BaseModel):
 
 
 class GraphResponse(BaseModel):
-    """available=False means Neo4j isn't reachable — never a 500, so the
+    """available=False means the graph couldn't be read — never a 500, so the
     Swift client can render a clear empty state instead of an error."""
 
     available: bool

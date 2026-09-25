@@ -1,7 +1,7 @@
 import Foundation
 import Security
 
-/// The Gemini API key and Neo4j password, kept in the macOS Keychain rather
+/// The Gemini API key, kept in the macOS Keychain rather
 /// than the preferences plist (which any process running as the user can
 /// read in plain text). Values found in UserDefaults from older builds are
 /// moved into the Keychain and deleted from UserDefaults on first launch.
@@ -14,13 +14,11 @@ final class Secrets {
         didSet { Keychain.set(geminiAPIKey, account: "geminiAPIKey") }
     }
 
-    var neo4jPassword: String {
-        didSet { Keychain.set(neo4jPassword, account: "neo4jPassword") }
-    }
-
     private init() {
         geminiAPIKey = Self.load("geminiAPIKey")
-        neo4jPassword = Self.load("neo4jPassword")
+        // The Neo4j era is over: drop its stored password.
+        Keychain.set("", account: "neo4jPassword")
+        for key in ["neo4jPassword", "neo4jURI", "neo4jUser"] { UserDefaults.standard.removeObject(forKey: key) }
     }
 
     private static func load(_ account: String) -> String {

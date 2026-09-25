@@ -1,76 +1,54 @@
-"""Self-check for per-document graph merging against a live Neo4j:
-`NEO4J_PASSWORD=... python test_graph_merge.py`. Writes two throwaway test
-documents, verifies shared entities are stored once, removes them, and
-verifies the graph is exactly as it was. Skips if Neo4j isn't reachable."""
+"""Self-check for per-document graph merging: `python test_graph_merge.py`.
+Runs against a throwaway SQLite graph in a temp folder — never real data."""
 
-import graph
-from models import GraphEdge, GraphNode
+import os
+import tempfile
 
+os.environ["CLUTCH_DATA_DIR"] = tempfile.mkdtemp(prefix="clutch_graph_test_")
 
-def snapshot():
-    with graph._driver.session() as session:
-        nodes = session.run("MATCH (n:Entity) RETURN n.id AS id, n.sources AS s ORDER BY id").data()
-        edges = session.run(
-            "MATCH (a)-[r]->(b) RETURN a.id AS a, type(r) AS t, b.id AS b, r.sources AS s ORDER BY a, t, b"
-        ).data()
-    return nodes, edges
+import graph  # noqa: E402  (must import after setting CLUTCH_DATA_DIR)
+from models import GraphEdge, GraphNode  # noqa: E402
 
 
-def sources_of(node_id):
-    with graph._driver.session() as session:
-        rows = session.run("MATCH (n:Entity {id: $id}) RETURN n.sources AS s", id=node_id).data()
-    return rows
+def sources_of(node_id: str) -> list[str] | None:
+    nodes, _ = graph.fetch_career_graph()
+    with graph._connect() as db:
+        row = db.execute("SELECT sources FROM nodes WHERE id = ?", (node_id,)).fetchone()
+    return None if row is None else __import__("json").loads(row[0])
 
 
 def demo():
-    if not graph.is_available():
-        print("skipped: Neo4j not reachable")
-        return
-    graph.normalize_ids()
-    before = snapshot()
-    with graph._driver.session() as session:  # a pre-tracking entity (null sources)
-        session.run("CREATE (:Entity {id: 'clutch-selftest-legacy', label: 'Clutch Selftest Legacy', type: 'Skill'})")
-    a, b = "clutch-selftest-a", "clutch-selftest-b"
-    try:
-        # Same entities, spelled differently by two "documents".
-        graph.add_document_graph(a, [
-            GraphNode(id="py", label="Python", type="Skill"),
-            GraphNode(id="p1", label="Clutch Selftest Engine", type="Project"),
-        ], [GraphEdge(source="py", target="p1", relationship="USED_IN")])
-        graph.add_document_graph(a, [GraphNode(id="x", label="Clutch Selftest Legacy", type="Skill")], [])
-        graph.add_document_graph(b, [
-            GraphNode(id="python-lang", label="python ", type="Skill"),
-            GraphNode(id="eng", label="Clutch Selftest Engine.", type="Project"),
-        ], [GraphEdge(source="python-lang", target="eng", relationship="USED_IN")])
+    assert graph.is_empty()
+    graph.add_document_graph("resume", [GraphNode(id="x", label="Docker", type="Skill")], [])
+    before = graph.fetch_career_graph()
 
-        python_rows = sources_of("python")
-        assert len(python_rows) == 1, "Python must be one node"
-        assert {a, b} <= set(python_rows[0]["s"]), python_rows
-        project_rows = sources_of("clutch-selftest-engine")
-        assert len(project_rows) == 1 and set(project_rows[0]["s"]) == {a, b}, project_rows
-        with graph._driver.session() as session:
-            edge_count = session.run(
-                "MATCH (:Entity {id:'python'})-[r:USED_IN]->(:Entity {id:'clutch-selftest-engine'}) RETURN count(r) AS c"
-            ).single()["c"]
-        assert edge_count == 1, "the shared edge must be stored once"
+    # Same entities, spelled differently by two documents.
+    graph.add_document_graph("a", [
+        GraphNode(id="py", label="Python", type="Skill"),
+        GraphNode(id="p1", label="Clutch Engine", type="Project"),
+    ], [GraphEdge(source="py", target="p1", relationship="USED_IN")])
+    graph.add_document_graph("b", [
+        GraphNode(id="python-lang", label="python ", type="Skill"),
+        GraphNode(id="eng", label="Clutch Engine.", type="Project"),
+        GraphNode(id="d", label="Docker", type="Skill"),
+    ], [GraphEdge(source="python-lang", target="eng", relationship="USED_IN")])
 
-        graph.remove_document_graph(a)
-        assert sources_of("clutch-selftest-engine")[0]["s"] == [b], "b still vouches for the project"
-    finally:
-        graph.remove_document_graph(a)
-        graph.remove_document_graph(b)
-        legacy = sources_of("clutch-selftest-legacy")
-        with graph._driver.session() as session:
-            session.run("MATCH (n:Entity {id: 'clutch-selftest-legacy'}) DETACH DELETE n")
+    nodes, edges = graph.fetch_career_graph()
+    assert [n.id for n in nodes].count("python") == 1, "Python must be one node"
+    assert sources_of("python") == ["a", "b"] and sources_of("clutch-engine") == ["a", "b"]
+    assert len([e for e in edges if (e.source, e.target) == ("python", "clutch-engine")]) == 1, "shared edge stored once"
+    assert sources_of("docker") == ["resume", "b"], "an existing entity gains the new document"
+    assert "Python —used in→ Clutch Engine" in graph.related_facts("Senior Python developer")
 
-    assert legacy == [{"s": [graph.LEGACY_DOC_ID]}], f"a pre-tracking node must survive, owned by the legacy doc: {legacy}"
+    graph.remove_document_graph("a")
+    assert sources_of("clutch-engine") == ["b"], "b still vouches for the project"
+    graph.remove_document_graph("b")
+    assert graph.fetch_career_graph() == before, "removing both documents restores the graph exactly"
 
-    assert snapshot() == before, "removing both documents must restore the graph exactly"
+    graph.clear()
+    assert graph.is_empty()
     print("graph merge self-check passed")
 
 
 if __name__ == "__main__":
-    import os
-
-    graph.configure("bolt://localhost:7687", "neo4j", os.environ.get("NEO4J_PASSWORD", ""))
     demo()

@@ -15,7 +15,6 @@ import rag
 from models import (
     CompileRequest,
     GenerationResponse,
-    GraphConfig,
     GraphResponse,
     JobDescriptionPayload,
     RetrievalResponse,
@@ -69,37 +68,32 @@ async def ingest_documents(
     if not parsed:
         raise HTTPException(status_code=422, detail="Nothing to ingest. " + "; ".join(problems))
 
-    graph_up = graph.is_available()
     if mode == "replace":
         database.clear()
-        if graph_up:
-            graph.clear()
+        graph.clear()
 
     # The graph is built by parsing each document's sections (always works,
     # any engine); Gemini, when configured, adds relationships on top.
-    enrich_with_gemini = graph_up and inference_mode == "cloud" and bool(gemini_api_key)
+    enrich_with_gemini = inference_mode == "cloud" and bool(gemini_api_key)
     summaries: list[str] = []
     total_chunks = 0
     for name, text in parsed:
         doc_id, count = database.add_document(name, text)
         total_chunks += count
         summary = f"{name}: {count} chunks"
-        if graph_up:
-            graph.remove_document_graph(doc_id)  # re-adding a file replaces its old entities
-            nodes, edges = graph_extract.extract(parsing.chunk_sections(text))
-            graph.add_document_graph(doc_id, nodes, edges)
-            summary += f", {len(nodes)} graph entities"
-            if enrich_with_gemini:
-                try:
-                    extraction = llm.extract_career_graph(text, gemini_api_key)
-                    graph.add_document_graph(doc_id, extraction.nodes, extraction.edges)
-                except Exception:
-                    logger.exception("Gemini graph enrichment failed for %s", name)
+        graph.remove_document_graph(doc_id)  # re-adding a file replaces its old entities
+        nodes, edges = graph_extract.extract(parsing.chunk_sections(text))
+        graph.add_document_graph(doc_id, nodes, edges)
+        summary += f", {len(nodes)} graph entities"
+        if enrich_with_gemini:
+            try:
+                extraction = llm.extract_career_graph(text, gemini_api_key)
+                graph.add_document_graph(doc_id, extraction.nodes, extraction.edges)
+            except Exception:
+                logger.exception("Gemini graph enrichment failed for %s", name)
         summaries.append(summary)
 
     message = ("Replaced the library with " if mode == "replace" else "Added ") + "; ".join(summaries) + "."
-    if not graph_up:
-        message += " (Knowledge graph offline — connect Neo4j in Settings to see these in the graph.)"
     if problems:
         message += " Skipped: " + "; ".join(problems) + "."
     return GenerationResponse(success=True, message=message, chunk_count=total_chunks)
@@ -120,41 +114,24 @@ def delete_document(payload: DocumentRequest) -> list[dict]:
         database.remove_document(payload.doc_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    if graph.is_available():
-        graph.remove_document_graph(payload.doc_id)
+    graph.remove_document_graph(payload.doc_id)
     return database.list_documents()
 
 
 @router.get("/graph", response_model=GraphResponse)
 def get_career_graph() -> GraphResponse:
-    if not graph.is_available():
-        return GraphResponse(available=False, reason=graph.last_error)
     nodes, edges = graph.fetch_career_graph()
     return GraphResponse(available=True, nodes=nodes, edges=edges)
-
-
-@router.post("/graph/config", response_model=GraphResponse)
-def configure_graph(config: GraphConfig) -> GraphResponse:
-    """Points the backend at the user's Neo4j (sent by the app on launch
-    and whenever the Settings change). Reports whether it connected."""
-    connected = graph.configure(config.uri, config.user, config.password)
-    if connected:
-        # Entities from before per-document tracking belong to the migrated
-        # upload (no-op once everything has an owner).
-        graph.adopt_unowned()
-        graph.normalize_ids()
-    return GraphResponse(available=connected, reason=graph.last_error)
 
 
 @router.post("/retrieve", response_model=RetrievalResponse)
 def retrieve(payload: RetrieveRequest) -> RetrievalResponse:
     """The retrieval step on its own, so the UI can show what matched
     before (and while) the LLM writes."""
-    graph_available = graph.is_available()
     return RetrievalResponse(
         chunks=rag.deduplicate(database.search(payload.jd_text, n_results=12))[:8],
-        graph_facts=graph.related_facts(payload.jd_text) if graph_available else [],
-        graph_available=graph_available,
+        graph_facts=graph.related_facts(payload.jd_text),
+        graph_available=True,
     )
 
 
@@ -201,17 +178,19 @@ def generation_progress() -> dict:
     return dict(local_model.progress)
 
 
-@router.post("/graph/rebuild", response_model=GraphResponse)
-def rebuild_graph() -> GraphResponse:
-    """Rebuilds the whole graph from every document in the library."""
-    if not graph.is_available():
-        return GraphResponse(available=False, reason=graph.last_error)
+def rebuild_graph_from_documents() -> None:
     graph.clear()
     for doc in database.list_documents():
         text = database.source_text(doc["id"])
         if text:
             nodes, edges = graph_extract.extract(parsing.chunk_sections(text))
             graph.add_document_graph(doc["id"], nodes, edges)
+
+
+@router.post("/graph/rebuild", response_model=GraphResponse)
+def rebuild_graph() -> GraphResponse:
+    """Rebuilds the whole graph from every document in the library."""
+    rebuild_graph_from_documents()
     nodes, edges = graph.fetch_career_graph()
     return GraphResponse(available=True, nodes=nodes, edges=edges)
 
