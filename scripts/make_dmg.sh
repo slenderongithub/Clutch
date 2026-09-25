@@ -61,6 +61,9 @@ for attempt in 1 2 3 4 5; do
   [ "$attempt" = 5 ] && { echo "Tectonic cache warm-up failed (network?)"; exit 1; }
   echo "   warm-up attempt $attempt hit a download glitch, retrying…"
 done
+(cd "$ROOT/backend" && CLUTCH_TECTONIC="$RES/bin/tectonic" TECTONIC_CACHE_DIR="$BUILD/tectonic-cache" \
+  CLUTCH_TECTONIC_OFFLINE=1 "$RES/runtime/bin/python3" test_templates.py >/dev/null) \
+  || { echo "Tectonic cache is missing files some template needs; re-run to fetch them"; exit 1; }
 rm -rf "$RES/tectonic-cache" && rsync -a --exclude '*.lock' "$BUILD/tectonic-cache/" "$RES/tectonic-cache/"
 
 step "Embedding model"

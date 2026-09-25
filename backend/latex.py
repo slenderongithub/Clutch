@@ -109,19 +109,35 @@ def _tectonic() -> str | None:
     return os.path.abspath(path) if path and os.access(path, os.X_OK) else None
 
 
+# Pinned so the offline pass knows which cached bundle to use; must match
+# the bundle make_dmg.sh warms (Tectonic 0.17's default).
+TECTONIC_BUNDLE = "https://relay.fullyjustified.net/default_bundle_v33.tar"
+
+
 def _engine_command(tex_name: str, workdir: Path) -> list[list[str]]:
     """Command(s) to run. Tectonic — a 54 MB self-contained engine shipped
     inside Clutch.app — handles reruns itself and fetches only the packages a
     document uses; pdflatex (MacTeX) remains as a developer fallback. Both
-    are locked down: a .tex file must never run shell commands."""
+    are locked down: a .tex file must never run shell commands.
+
+    Tectonic runs cache-only first: online it re-checks the bundle server on
+    every compile, which stalls for minutes when that server is slow. The
+    online run is only the fallback for a package the cache lacks."""
     tectonic = _tectonic()
     if tectonic:
-        return [[tectonic, "-X", "compile", "--untrusted", "--outdir", str(workdir), tex_name]]
+        base = [tectonic, "-X", "compile", "--untrusted", "--outdir", str(workdir)]
+        offline = base + ["-C", "-b", TECTONIC_BUNDLE, tex_name]
+        # make_dmg.sh sets this to prove the shipped cache is complete.
+        return [offline] if os.environ.get("CLUTCH_TECTONIC_OFFLINE") else [offline, base + [tex_name]]
     pdflatex = [
         "pdflatex", "-interaction=nonstopmode", "-no-shell-escape", "-halt-on-error",
         "-output-directory", str(workdir), tex_name,
     ]
     return [pdflatex, pdflatex]  # a second pass resolves cross-references
+
+
+def _is_tectonic(command: list[str]) -> bool:
+    return command[1:3] == ["-X", "compile"]
 
 
 def compile_tex_to_pdf(tex_source: str) -> str:
@@ -144,6 +160,8 @@ def compile_tex_to_pdf(tex_source: str) -> str:
                 result = subprocess.run(command, cwd=workdir, capture_output=True, text=True, timeout=300)
                 if result.returncode == 0 or "note: downloading" not in result.stderr:
                     break
+            if _is_tectonic(command) and result.returncode == 0:
+                break  # offline pass worked; skip the online fallback
     except FileNotFoundError as exc:
         raise RuntimeError("No LaTeX engine found. Reinstall Clutch (it ships with one).") from exc
     except subprocess.TimeoutExpired as exc:

@@ -239,7 +239,7 @@ final class NetworkManager {
 
     /// Compiles the given .tex source into a PDF — no LLM involved.
     func compilePDF(texSource: String) async throws -> GenerateResumeResponse {
-        try await post(path: "api/v1/compile_only", body: ["tex_source": texSource])
+        try await post(path: "api/v1/compile_only", timeout: 330, body: ["tex_source": texSource])
     }
 
     enum IngestMode: String {
