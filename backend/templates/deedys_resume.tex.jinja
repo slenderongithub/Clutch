@@ -1,0 +1,32 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[sfdefault]{roboto}
+\usepackage[margin=0.55in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\definecolor{graytext}{RGB}{85,85,85}
+\definecolor{headings}{RGB}{35,35,35}
+\definecolor{sub}{RGB}{0,121,107}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\raggedright
+\titleformat{\section}{\color{headings}\Large\bfseries}{}{0em}{\MakeUppercase}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\newcommand{\entry}[4]{\vspace{4pt}{\color{sub}\bfseries #1}\cvifblank{#2}{}{ {\color{graytext}$|$ #2}}\hfill{\small\color{graytext}#3\cvifblank{#4}{}{ \textbullet{} #4}}\par}
+\newcommand{\projectentry}[3]{\vspace{4pt}{\color{sub}\bfseries #1}\cvifblank{#2}{}{ {\small\color{graytext}$\cdot$ #2}}\hfill{\small\color{graytext}#3}\par}
+\newcommand{\skillgroup}[2]{\cvifblank{#1}{}{\textbf{#1} \quad}{\color{graytext}#2}\par\vspace{1pt}}
+\newenvironment{resumebullets}{\begin{itemize}[leftmargin=1em,itemsep=0pt,topsep=1pt,parsep=0pt]\small}{\end{itemize}}
+\newcommand{\cvifblank}[3]{\if\relax\detokenize{#1}\relax#2\else#3\fi}
+
+\begin{document}
+{\fontsize{30}{32}\selectfont\bfseries \VAR{full_name|latex_escape}}\par\vspace{2pt}
+\BLOCK{if headline}{\color{sub}\large \VAR{headline|latex_escape}}\par\vspace{3pt}\BLOCK{endif}
+\BLOCK{if contact_parts}{\small\color{graytext} \VAR{contact_parts|join(' \textbar{} ')}}\par\BLOCK{endif}
+\vspace{2pt}\hrule
+
+\BLOCK{include "_sections.tex.jinja"}
+
+\end{document}

@@ -1,0 +1,36 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\titleformat{\section}{\vspace{-4pt}\scshape\raggedright\large}{}{0em}{}[\color{black}\titlerule\vspace{-5pt}]
+\newcommand{\entry}[4]{\vspace{3pt}\textbf{#1}\hfill #3\\\textit{\small #2}\hfill\textit{\small #4}\par}
+\newcommand{\projectentry}[3]{\vspace{3pt}\textbf{#1}\cvifblank{#2}{}{ $|$ \emph{\small #2}}\hfill #3\par}
+\newcommand{\skillgroup}[2]{\cvifblank{#1}{}{\textbf{#1}: }#2\par}
+\newenvironment{resumebullets}{\begin{itemize}[leftmargin=1.3em,itemsep=0pt,topsep=1pt,parsep=0pt]\small}{\end{itemize}\vspace{-2pt}}
+\newcommand{\cvifblank}[3]{\if\relax\detokenize{#1}\relax#2\else#3\fi}
+
+\begin{document}
+\begin{center}
+  {\Huge \scshape \VAR{full_name|latex_escape}} \\ \vspace{3pt}
+  \BLOCK{if headline}{\small \VAR{headline|latex_escape}} \\ \vspace{2pt}\BLOCK{endif}
+  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' $|$ ')}}\BLOCK{endif}
+\end{center}
+
+\BLOCK{include "_sections.tex.jinja"}
+
+\end{document}

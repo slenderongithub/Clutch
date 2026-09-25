@@ -1,0 +1,31 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ebgaramond}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\definecolor{navy}{RGB}{25,42,86}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\raggedright
+\titleformat{\section}{\large\scshape\color{navy}}{}{0em}{}[{\color{navy!50}\titlerule}]
+\titlespacing*{\section}{0pt}{10pt}{5pt}
+\newcommand{\entry}[4]{\vspace{3pt}\textbf{#1}\cvifblank{#2}{}{, \textit{#2}}\hfill #3\par\cvifblank{#4}{}{{\small\itshape #4}\par}}
+\newcommand{\projectentry}[3]{\vspace{3pt}\textbf{#1}\cvifblank{#2}{}{ \textperiodcentered{} \textit{#2}}\hfill #3\par}
+\newcommand{\skillgroup}[2]{\cvifblank{#1}{}{\textsc{#1}: }#2\par}
+\newenvironment{resumebullets}{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]}{\end{itemize}}
+\newcommand{\cvifblank}[3]{\if\relax\detokenize{#1}\relax#2\else#3\fi}
+
+\begin{document}
+\begin{center}
+  {\Huge \scshape \VAR{full_name|latex_escape}} \\ \vspace{3pt}
+  \BLOCK{if headline}{\small \itshape \VAR{headline|latex_escape}} \\ \vspace{2pt}\BLOCK{endif}
+  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \enspace\textperiodcentered\enspace ')}}\BLOCK{endif}
+\end{center}
+
+\BLOCK{include "_sections.tex.jinja"}
+
+\end{document}

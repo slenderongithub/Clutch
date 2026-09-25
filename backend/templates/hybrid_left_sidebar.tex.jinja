@@ -1,0 +1,34 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\raggedbottom
+\raggedright
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\definecolor{brand}{RGB}{0,102,204}
+\definecolor{textdark}{RGB}{51,51,51}
+\titleformat{\section}{\color{brand}\large\bfseries}{}{0em}{}[\color{brand}\titlerule]
+% Dates live in a left rail; the entry itself on the right.
+\newcommand{\entry}[4]{\vspace{3pt}\noindent\begin{minipage}[t]{0.2\linewidth}\raggedright\small\textbf{\color{brand}#3}\cvifblank{#4}{}{\\\footnotesize #4}\end{minipage}\hfill\begin{minipage}[t]{0.78\linewidth}\textbf{#1}\cvifblank{#2}{}{ \ $|$ \ \textit{#2}}\end{minipage}\par}
+\newcommand{\projectentry}[3]{\vspace{3pt}\noindent\begin{minipage}[t]{0.2\linewidth}\raggedright\small\textbf{\color{brand}#3}\end{minipage}\hfill\begin{minipage}[t]{0.78\linewidth}\textbf{#1}\cvifblank{#2}{}{\\{\small\textit{#2}}}\end{minipage}\par}
+\newcommand{\skillgroup}[2]{\vspace{3pt}\noindent\begin{minipage}[t]{0.2\linewidth}\raggedright\small\textbf{\color{brand}#1}\end{minipage}\hfill\begin{minipage}[t]{0.78\linewidth}#2\end{minipage}\par}
+\newenvironment{resumebullets}{\begin{itemize}[leftmargin=0.22\linewidth,itemsep=0pt,topsep=2pt,parsep=0pt]\small}{\end{itemize}}
+\newcommand{\cvifblank}[3]{\if\relax\detokenize{#1}\relax#2\else#3\fi}
+
+\begin{document}
+\color{textdark}
+\begin{center}
+  {\Huge \textbf{\VAR{full_name|upper|latex_escape}}} \\ \vspace{4pt}
+  \BLOCK{if headline}{\color{brand}\VAR{headline|latex_escape}} \\ \vspace{2pt}\BLOCK{endif}
+  \BLOCK{if contact_parts}{\small \VAR{contact_parts|join(' \ $\cdot$ \ ')}}\BLOCK{endif}
+\end{center}
+
+\BLOCK{include "_sections.tex.jinja"}
+
+\end{document}

@@ -1,0 +1,71 @@
+\#{ Shared resume body. Every template defines the same small set of
+    commands with its own look — \entry, \projectentry, \skillgroup and the
+    resumebullets environment — so all six render every section. }
+\BLOCK{if summary}
+\section{Summary}
+\VAR{summary|latex_escape}
+\BLOCK{endif}
+\BLOCK{if education}
+\section{Education}
+\BLOCK{for edu in education}
+\entry{\VAR{edu.institution|latex_escape}}{\VAR{edu.degree|latex_escape}}{\VAR{edu.dates|latex_escape}}{\VAR{edu.location|latex_escape}}
+\BLOCK{if edu.details}
+\begin{resumebullets}
+  \item \VAR{edu.details|latex_escape}
+\end{resumebullets}
+\BLOCK{endif}
+\BLOCK{endfor}
+\BLOCK{endif}
+\BLOCK{if experience}
+\section{Experience}
+\BLOCK{for job in experience}
+\entry{\VAR{job.title|latex_escape}}{\VAR{job.organization|latex_escape}}{\VAR{job.dates|latex_escape}}{\VAR{job.location|latex_escape}}
+\BLOCK{if job.bullets}
+\begin{resumebullets}
+\BLOCK{for bullet in job.bullets}
+  \item \VAR{bullet|latex_escape}
+\BLOCK{endfor}
+\end{resumebullets}
+\BLOCK{endif}
+\BLOCK{endfor}
+\BLOCK{endif}
+\BLOCK{if projects}
+\section{Projects}
+\BLOCK{for project in projects}
+\projectentry{\VAR{project.name|latex_escape}}{\VAR{project.tech|map('latex_escape')|join(', ')}}{\VAR{project.dates|latex_escape}}
+\BLOCK{if project.bullets}
+\begin{resumebullets}
+\BLOCK{for bullet in project.bullets}
+  \item \VAR{bullet|latex_escape}
+\BLOCK{endfor}
+\end{resumebullets}
+\BLOCK{endif}
+\BLOCK{endfor}
+\BLOCK{endif}
+\BLOCK{if skills}
+\section{Skills}
+\BLOCK{for group in skills}
+\skillgroup{\VAR{group.category|latex_escape}}{\VAR{group['items']|map('latex_escape')|join(', ')}}
+\BLOCK{endfor}
+\BLOCK{endif}
+\BLOCK{if leadership}
+\section{Leadership \& Activities}
+\BLOCK{for role in leadership}
+\entry{\VAR{role.title|latex_escape}}{\VAR{role.organization|latex_escape}}{\VAR{role.dates|latex_escape}}{\VAR{role.location|latex_escape}}
+\BLOCK{if role.bullets}
+\begin{resumebullets}
+\BLOCK{for bullet in role.bullets}
+  \item \VAR{bullet|latex_escape}
+\BLOCK{endfor}
+\end{resumebullets}
+\BLOCK{endif}
+\BLOCK{endfor}
+\BLOCK{endif}
+\BLOCK{if certifications or achievements}
+\section{\BLOCK{if certifications and achievements}Certifications \& Achievements\BLOCK{elif certifications}Certifications\BLOCK{else}Achievements\BLOCK{endif}}
+\begin{resumebullets}
+\BLOCK{for item in certifications + achievements}
+  \item \VAR{item|latex_escape}
+\BLOCK{endfor}
+\end{resumebullets}
+\BLOCK{endif}

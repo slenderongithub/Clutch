@@ -1,0 +1,31 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[default]{sourcesanspro}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\definecolor{primary}{RGB}{33,37,41}
+\definecolor{secondary}{RGB}{108,117,125}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\raggedright
+\color{primary}
+\titleformat{\section}{\large\bfseries\color{primary}}{}{0em}{\MakeUppercase}[{\color{secondary!40}\titlerule}]
+\titlespacing*{\section}{0pt}{10pt}{5pt}
+\newcommand{\entry}[4]{\vspace{3pt}\textbf{#1}\cvifblank{#2}{}{ \textcolor{secondary}{$|$ #2}}\hfill\textcolor{secondary}{\small #3}\par\cvifblank{#4}{}{{\small\textcolor{secondary}{#4}}\par}}
+\newcommand{\projectentry}[3]{\vspace{3pt}\textbf{#1}\cvifblank{#2}{}{ \textcolor{secondary}{\small --- #2}}\hfill\textcolor{secondary}{\small #3}\par}
+\newcommand{\skillgroup}[2]{\cvifblank{#1}{}{\textbf{#1}: }#2\par}
+\newenvironment{resumebullets}{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt,label={\textcolor{secondary}{--}}]}{\end{itemize}}
+\newcommand{\cvifblank}[3]{\if\relax\detokenize{#1}\relax#2\else#3\fi}
+
+\begin{document}
+{\Huge \textbf{\VAR{full_name|upper|latex_escape}}}\par\vspace{4pt}
+\BLOCK{if headline}{\large\color{secondary} \VAR{headline|latex_escape}}\par\vspace{3pt}\BLOCK{endif}
+\BLOCK{if contact_parts}{\small\color{secondary} \VAR{contact_parts|join('\quad\textbullet\quad ')}}\par\BLOCK{endif}
+
+\BLOCK{include "_sections.tex.jinja"}
+
+\end{document}
